@@ -19,7 +19,9 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.22.0'  # or your desired version
-
+        channel: stable
+    - name: Verify Dart Version
+      run: dart --version
     - name: Install dependencies
       run: flutter pub get
 
