@@ -18,10 +18,15 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.0'  # or your desired version
+        flutter-version: '3.22.0'
         channel: stable
+
+    - name: Force correct Flutter path (avoids system Dart 3.4.1)
+      run: echo "$HOME/flutter/bin" >> $GITHUB_PATH
+
     - name: Verify Dart Version
       run: dart --version
+
     - name: Install dependencies
       run: flutter pub get
 
@@ -31,7 +36,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::536284936847:role/deeptrain
+        role-to-assume: arn:aws:iam::536284936847:role/deeptrain  # Replace with real AWS account ID
         aws-region: us-east-1
 
     - name: Log in to Amazon ECR
