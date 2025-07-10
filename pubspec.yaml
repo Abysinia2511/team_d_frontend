@@ -5,13 +5,13 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.1
+  sdk: ">=3.2.6 <4.0.0"
+  flutter: ">=3.22.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  
   go_router: ^10.1.2
   provider: ^6.1.1
   fl_chart: ^0.65.0
@@ -29,10 +29,6 @@ dependencies:
   flutter_tts: ^3.8.0
   video_player: ^2.8.3
 
-  
-
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -48,4 +44,3 @@ flutter:
     - assets/images/touch.webp
     - assets/images/Robot.webp
     - assets/images/reset5.webp
-   
