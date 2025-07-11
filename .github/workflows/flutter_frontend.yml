@@ -20,34 +20,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Manually install Flutter 3.22.2 with Dart 3.5.1
+    - name: Clone Flutter 3.22.2 (Dart 3.5.1)
       run: |
         git clone https://github.com/flutter/flutter.git --branch 3.22.2 --depth 1
         echo "FLUTTER_HOME=$GITHUB_WORKSPACE/flutter" >> $GITHUB_ENV
+        echo "$GITHUB_WORKSPACE/flutter/bin" >> $GITHUB_PATH
+        echo "$GITHUB_WORKSPACE/flutter/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
 
-    - name: Setup PATH for Flutter & Dart
+    - name: Precache & Setup Flutter Web
       run: |
-        echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
-        echo "$FLUTTER_HOME/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
-
-    - name: Precache Flutter Web & Install Packages
-      run: |
-        export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
-        flutter doctor
+        flutter doctor -v
         flutter config --enable-web
         flutter precache --web
         flutter pub get
 
-    - name: Check Versions
-      run: |
-        export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
-        flutter --version
-        dart --version
+    - name: Check Dart Version
+      run: dart --version  # ✅ This should show 3.5.1 now
 
     - name: Build Flutter Web
-      run: |
-        export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
-        flutter build web --release
+      run: flutter build web --release
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
