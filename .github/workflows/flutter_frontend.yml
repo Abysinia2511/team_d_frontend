@@ -24,23 +24,30 @@ jobs:
       run: |
         git clone https://github.com/flutter/flutter.git --branch 3.22.2 --depth 1
         echo "FLUTTER_HOME=$GITHUB_WORKSPACE/flutter" >> $GITHUB_ENV
-        echo "$GITHUB_WORKSPACE/flutter/bin" >> $GITHUB_PATH
-        echo "$GITHUB_WORKSPACE/flutter/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
 
-    - name: Precache Flutter tools
+    - name: Setup PATH for Flutter & Dart
       run: |
+        echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
+        echo "$FLUTTER_HOME/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
+
+    - name: Precache Flutter Web & Install Packages
+      run: |
+        export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
         flutter doctor
         flutter config --enable-web
         flutter precache --web
         flutter pub get
 
-    - name: Check Dart & Flutter version
+    - name: Check Versions
       run: |
-        echo "Flutter: $(flutter --version)"
-        echo "Dart: $(dart --version)"
+        export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
+        flutter --version
+        dart --version
 
-    - name: Build Flutter web
-      run: flutter build web --release
+    - name: Build Flutter Web
+      run: |
+        export PATH="$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
+        flutter build web --release
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
