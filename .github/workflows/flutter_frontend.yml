@@ -20,16 +20,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install Flutter 3.22.2 manually
+    - name: Manually install Flutter 3.22.2 with Dart 3.5.1
       run: |
         git clone https://github.com/flutter/flutter.git --branch 3.22.2 --depth 1
+        echo "FLUTTER_HOME=$GITHUB_WORKSPACE/flutter" >> $GITHUB_ENV
         echo "$GITHUB_WORKSPACE/flutter/bin" >> $GITHUB_PATH
+        echo "$GITHUB_WORKSPACE/flutter/bin/cache/dart-sdk/bin" >> $GITHUB_PATH
 
-    - name: Enable Flutter and confirm Dart version
+    - name: Precache Flutter tools
       run: |
-        export PATH="$GITHUB_WORKSPACE/flutter/bin:$GITHUB_WORKSPACE/flutter/bin/cache/dart-sdk/bin:$PATH"
         flutter doctor
-        dart --version
+        flutter config --enable-web
+        flutter precache --web
+        flutter pub get
+
+    - name: Check Dart & Flutter version
+      run: |
+        echo "Flutter: $(flutter --version)"
+        echo "Dart: $(dart --version)"
 
     - name: Build Flutter web
       run: flutter build web --release
