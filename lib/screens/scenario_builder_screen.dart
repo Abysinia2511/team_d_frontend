@@ -607,7 +607,7 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
 
               try {
                 final response = await dio.post(
-                  'http://localhost:8080/api/v1/scenario/save', // ✅ Change to your actual endpoint
+                  'http://54.173.230.60:8080/api/v1/scenario/save', // ✅ Change to your actual endpoint
                   data: blocks.map((block) => block.toJson()).toList(),
                   options: Options(
                     headers: {'Content-Type': 'application/json'},
@@ -671,7 +671,7 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
                 try {
                   final dio = Dio();
                   final response = await dio.post(
-                    'http://localhost:8080/api/v1/scenario/generate',
+                    'http://54.173.230.60:8080/api/v1/scenario/generate',
                     data: {'prompt': prompt},
                     options: Options(
                       headers: {'Content-Type': 'application/json'},
