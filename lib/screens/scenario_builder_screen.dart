@@ -249,6 +249,7 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
                         ),
                       ),
                     ],
+                   //Beth Lesson change 
                     if (currentBlock.type == 'Lesson') ...[
                       DropdownButtonFormField<String>(
                         value: currentBlock.lessonType ?? 'Text',
@@ -308,7 +309,7 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
                             ),
                           ),
                       ],
-                      TextFormField(
+                      /* TextFormField(
                         initialValue: currentBlock.lessonContent ?? '',
                         maxLines: 8,
                         onChanged: (val) => ref
@@ -319,8 +320,105 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Lesson Content',
                         ),
-                      ),
+                      ), */
+Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Expanded(
+      child: TextFormField(
+        initialValue: currentBlock.lessonContent ?? '',
+        maxLines: 8,
+        onChanged: (val) => ref
+            .read(scenarioProvider.notifier)
+            .updateNode(
+              currentBlock.copyWith(lessonContent: val),
+            ),
+        decoration: const InputDecoration(
+          labelText: 'Lesson Content',
+        ),
+      ),
+    ),
+    IconButton(
+      icon: const Icon(Icons.flash_on, color: Colors.amber),
+      tooltip: 'AI Generate Lesson',
+      onPressed: () async {
+        final prompt = await showDialog<String>(
+          context: context,
+          builder: (context) {
+            String userInput = '';
+            return AlertDialog(
+              title: const Text('Generate Lesson via AI'),
+              content: TextFormField(
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Prompt for lesson content',
+                  hintText: 'e.g., How to treat a burn',
+                ),
+                onChanged: (value) => userInput = value,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, userInput),
+                  child: const Text('Generate'),
+                ),
+              ],
+            );
+          },
+        );
 
+       if (prompt != null && prompt.trim().isNotEmpty) {
+  try {
+    final dio = Dio();
+    final response = await dio.post(
+      'http://localhost:8080/api/v1/lesson/generate',
+      data: {'prompt': prompt},
+      options: Options(
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+
+    if (response.statusCode == 200 &&
+        response.data is List &&
+        response.data.isNotEmpty) {
+      final generatedLesson =
+          response.data[0]['lessonContent'] ?? 'Generated content';
+
+      // ✅ Update the node
+      ref.read(scenarioProvider.notifier).updateNode(
+            currentBlock.copyWith(lessonContent: generatedLesson),
+          );
+
+      // ✅ Close the dialog
+      Navigator.pop(context);
+
+      // ✅ Re-open dialog with the updated block from state
+      _editNode(
+        ref.read(scenarioProvider).firstWhere((b) => b.id == currentBlock.id),
+      );
+
+      // ✅ Notify the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lesson generated!')),
+      );
+    } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: Unexpected response')),
+              );
+             }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Generation failed: $e')),
+                    );
+                    }
+                    }
+                   },
+                   ),
+                 ],
+               ),
                       TextFormField(
                         initialValue: currentBlock.estimatedTime ?? '',
                         onChanged: (val) => ref
@@ -334,6 +432,10 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
                         keyboardType: TextInputType.number,
                       ),
                     ],
+                    
+
+
+                    //Beth lesson end
                     if (currentBlock.type == 'Quiz') ...[
                       TextFormField(
                         initialValue: currentBlock.quizTitle ?? '',
@@ -890,20 +992,47 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
               ).showSnackBar(const SnackBar(content: Text('Canvas cleared')));
             },
           ),
-          IconButton(
+           // Save changed by Beth
+         IconButton(
             icon: const Icon(Icons.save),
             tooltip: 'Save',
-            onPressed: () {
-              // Serialize the 'blocks' list to JSON and save it.
-              // This uses the toJson method we added to NodeBlock.
-              final jsonString = jsonEncode(blocks.map((block) => block.toJson()).toList());
-              // In a real app, you'd save jsonString to a file.
-              print('Scenario JSON: $jsonString'); // For demonstration
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Scenario data printed to console (save feature needs file system access)')),
-              );
+            onPressed: () async {
+              final blocks = ref.read(
+                scenarioProvider,
+              ); // 👈 Get current scenario blocks
+              final dio = Dio();
+
+              try {
+                final response = await dio.post(
+                  'http://localhost:8080/api/v1/scenario/save', // ✅ Change to your actual endpoint
+                  data: blocks.map((block) => block.toJson()).toList(),
+                  options: Options(
+                    headers: {'Content-Type': 'application/json'},
+                  ),
+                );
+
+                if (response.statusCode == 200) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Scenario saved successfully'),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to save: ${response.statusCode}'),
+                    ),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Save error: $e')));
+              }
             },
           ),
+
+          //end Save change by Beth
           // --- NEW/MODIFIED: Export to JSON functionality ---
           IconButton(
             icon: const Icon(Icons.download),
@@ -999,7 +1128,7 @@ class _ScenarioBuilderScreenState extends ConsumerState<ScenarioBuilderScreen> {
                 try {
                   final dio = Dio();
                   final response = await dio.post(
-                    'http://54.173.230.60:8080/api/v1/scenario/generate',
+                    'http://localhost:8080/api/v1/scenario/generate',
                     data: {'prompt': prompt},
                     options: Options(
                       headers: {'Content-Type': 'application/json'},
