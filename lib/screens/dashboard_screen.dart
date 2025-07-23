@@ -188,15 +188,11 @@ class DashboardScreen extends StatelessWidget {
               height: 60,
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text("Dashboard"),
-            onTap: () => router.go('/dashboard'),
-          ),
+       
           ListTile(
             leading: const Icon(Icons.build),
-            title: const Text("Builder"),
-            onTap: () => router.go('/builder'),
+            title: const Text("Scenario Builder"),
+            onTap: () => router.go('/scenario'),
           ),
           ListTile(
             leading: const Icon(Icons.smart_toy),

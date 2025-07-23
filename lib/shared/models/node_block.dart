@@ -1,157 +1,189 @@
-import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-
-final _uuid = Uuid();
+import 'package:flutter/material.dart'; // For Offset
 
 class NodeBlock {
   final String id;
   final Offset offset;
-  final String title;
   final String type;
-  final List<Map<String, String>>? questions;
+  final String title;
+  final String? parentId;
 
-  // optional metadata
-  final String? description;
-  final String? welcomeMessage;
-  final String? lessonType;
-  final String? lessonContent;
-  final String? estimatedTime;
+  // Lesson Node properties
+  final String? lessonType; // 'Text', 'Image', 'Video'
+  final String? lessonContent; // Text content, image URL, or video URL
+  final String? estimatedTime; // Estimated time to complete lesson
+
+  // Quiz Node properties
   final String? quizTitle;
   final String? passingScore;
   final String? timeLimit;
-  final String? conditionExpression;
+  final List<Map<String, String>>? questions; // List of {'question': '', 'answer': ''}
+
+  // Decision Node properties
+  final String? conditionExpression; // e.g., 'score > 80', 'itemCollected == true'
   final String? truePathLabel;
   final String? falsePathLabel;
+
+  // Checkpoint Node properties
   final String? checkpointTitle;
   final String? checkpointNote;
-  final String? eventType;
-  final String? triggerCondition;
-  final String? eventContent;
-  final String? eventAnswer;
+
+  // Start Node properties
+  final String? welcomeMessage;
+
+  // Event Node properties
+  final String? eventType; // e.g., 'Pop Quiz', 'Surprise Task'
+  final String? triggerCondition; // e.g., 'Random', 'After Lesson X'
+  final String? eventContent; // Content for the event
+  final String? eventAnswer; // Answer for pop quizzes in events
+  final int? randomTriggerChance; // Percentage (0-100) for random events
+
+  // NEW: Add description field
+  final String? description;
 
   NodeBlock({
-    String? id,
+    required this.id,
     required this.offset,
-    required this.title,
     required this.type,
-    this.description,
-    this.welcomeMessage,
+    required this.title,
+    this.parentId,
     this.lessonType,
     this.lessonContent,
     this.estimatedTime,
     this.quizTitle,
     this.passingScore,
     this.timeLimit,
+    this.questions,
     this.conditionExpression,
     this.truePathLabel,
     this.falsePathLabel,
     this.checkpointTitle,
     this.checkpointNote,
-    this.questions,
+    this.welcomeMessage,
     this.eventType,
     this.triggerCondition,
     this.eventContent,
     this.eventAnswer,
-  }) : id = id ?? _uuid.v4();
+    this.randomTriggerChance,
+    this.description, // Initialize the new field
+  });
 
-  
+  // copyWith method to facilitate immutable updates
   NodeBlock copyWith({
     String? id,
     Offset? offset,
-    String? title,
     String? type,
-    String? description,
-    String? welcomeMessage,
+    String? title,
+    String? parentId,
     String? lessonType,
     String? lessonContent,
     String? estimatedTime,
     String? quizTitle,
     String? passingScore,
     String? timeLimit,
+    List<Map<String, String>>? questions,
     String? conditionExpression,
     String? truePathLabel,
     String? falsePathLabel,
     String? checkpointTitle,
     String? checkpointNote,
+    String? welcomeMessage,
     String? eventType,
     String? triggerCondition,
     String? eventContent,
     String? eventAnswer,
-    List<Map<String, String>>? questions,
+    int? randomTriggerChance,
+    String? description, // Add to copyWith
   }) {
     return NodeBlock(
       id: id ?? this.id,
       offset: offset ?? this.offset,
-      title: title ?? this.title,
       type: type ?? this.type,
-      description: description ?? this.description,
-      welcomeMessage: welcomeMessage ?? this.welcomeMessage,
+      title: title ?? this.title,
+      parentId: parentId ?? this.parentId,
       lessonType: lessonType ?? this.lessonType,
       lessonContent: lessonContent ?? this.lessonContent,
       estimatedTime: estimatedTime ?? this.estimatedTime,
       quizTitle: quizTitle ?? this.quizTitle,
       passingScore: passingScore ?? this.passingScore,
       timeLimit: timeLimit ?? this.timeLimit,
+      questions: questions ?? this.questions,
       conditionExpression: conditionExpression ?? this.conditionExpression,
       truePathLabel: truePathLabel ?? this.truePathLabel,
       falsePathLabel: falsePathLabel ?? this.falsePathLabel,
       checkpointTitle: checkpointTitle ?? this.checkpointTitle,
       checkpointNote: checkpointNote ?? this.checkpointNote,
-      questions: questions ?? this.questions,
+      welcomeMessage: welcomeMessage ?? this.welcomeMessage,
       eventType: eventType ?? this.eventType,
       triggerCondition: triggerCondition ?? this.triggerCondition,
       eventContent: eventContent ?? this.eventContent,
       eventAnswer: eventAnswer ?? this.eventAnswer,
+      randomTriggerChance: randomTriggerChance ?? this.randomTriggerChance,
+      description: description ?? this.description, // Update here
     );
   }
 
+  // toJson method for serialization
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'offset': {'dx': offset.dx, 'dy': offset.dy},
+      'type': type,
+      'title': title,
+      'parentId': parentId,
+      'lessonType': lessonType,
+      'lessonContent': lessonContent,
+      'estimatedTime': estimatedTime,
+      'quizTitle': quizTitle,
+      'passingScore': passingScore,
+      'timeLimit': timeLimit,
+      'questions': questions,
+      'conditionExpression': conditionExpression,
+      'truePathLabel': truePathLabel,
+      'falsePathLabel': falsePathLabel,
+      'checkpointTitle': checkpointTitle,
+      'checkpointNote': checkpointNote,
+      'welcomeMessage': welcomeMessage,
+      'eventType': eventType,
+      'triggerCondition': triggerCondition,
+      'eventContent': eventContent,
+      'eventAnswer': eventAnswer,
+      'randomTriggerChance': randomTriggerChance,
+      'description': description, // Add to JSON
+    };
+  }
+
+  // fromJson factory for deserialization
   factory NodeBlock.fromJson(Map<String, dynamic> json) {
     return NodeBlock(
-      id: json['id'] ?? '',
+      id: json['id'] as String,
       offset: Offset(
-        (json['offset']?? 0).toDouble(),
-        (json['offset']?? 0).toDouble(),
+        (json['offset'] as Map<String, dynamic>)['dx'] as double, // Ensure casting to Map<String, dynamic>
+        (json['offset'] as Map<String, dynamic>)['dy'] as double, // Ensure casting to Map<String, dynamic>
       ),
-      type: json['type'] ?? '',
-      title: json['title'] ?? '',
-      description: json['description'],
-      welcomeMessage: json['welcomeMessage'],
-      lessonType: json['lessonType'],
-      lessonContent: json['lessonContent'],
-      estimatedTime: json['estimatedTime'],
-      quizTitle: json['quizTitle'],
-      passingScore: json['passingScore'],
-      timeLimit: json['timeLimit'],
-      conditionExpression: json['conditionExpression'],
-      truePathLabel: json['truePathLabel'],
-      falsePathLabel: json['falsePathLabel'],
-      checkpointTitle: json['checkpointTitle'],
-      checkpointNote: json['checkpointNote'],
-      questions: (json['questions'] as List?)
-          ?.map((q) => (q as Map).cast<String, String>())
+      type: json['type'] as String,
+      title: json['title'] as String,
+      parentId: json['parentId'] as String?,
+      lessonType: json['lessonType'] as String?,
+      lessonContent: json['lessonContent'] as String?,
+      estimatedTime: json['estimatedTime'] as String?,
+      quizTitle: json['quizTitle'] as String?,
+      passingScore: json['passingScore'] as String?,
+      timeLimit: json['timeLimit'] as String?,
+      questions: (json['questions'] as List<dynamic>?)
+          ?.map((q) => Map<String, String>.from(q as Map))
           .toList(),
+      conditionExpression: json['conditionExpression'] as String?,
+      truePathLabel: json['truePathLabel'] as String?,
+      falsePathLabel: json['falsePathLabel'] as String?,
+      checkpointTitle: json['checkpointTitle'] as String?,
+      checkpointNote: json['checkpointNote'] as String?,
+      welcomeMessage: json['welcomeMessage'] as String?,
+      eventType: json['eventType'] as String?,
+      triggerCondition: json['triggerCondition'] as String?,
+      eventContent: json['eventContent'] as String?,
+      eventAnswer: json['eventAnswer'] as String?,
+      randomTriggerChance: json['randomTriggerChance'] as int?,
+      description: json['description'] as String?, // Read from JSON
     );
   }
-
-  /// 🔁 Serialize NodeBlock to JSON
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'offset': {'dx': offset.dx, 'dy': offset.dy},
-    'title': title,
-    'type': type,
-    'description': description,
-    'welcomeMessage': welcomeMessage,
-    'lessonType': lessonType,
-    'lessonContent': lessonContent,
-    'estimatedTime': estimatedTime,
-    'quizTitle': quizTitle,
-    'passingScore': passingScore,
-    'timeLimit': timeLimit,
-    'conditionExpression': conditionExpression,
-    'truePathLabel': truePathLabel,
-    'falsePathLabel': falsePathLabel,
-    'checkpointTitle': checkpointTitle,
-    'checkpointNote': checkpointNote,
-    'questions': questions,
-  };
 }

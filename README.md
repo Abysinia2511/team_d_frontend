@@ -1,6 +1,6 @@
 # deeptrainfront
 
-A new Flutter project flutter upgrade.
+A new Flutter project.
 
 ## Getting Started
 
