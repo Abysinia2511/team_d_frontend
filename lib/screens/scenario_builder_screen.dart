@@ -374,7 +374,7 @@ Row(
   try {
     final dio = Dio();
     final response = await dio.post(
-      'http://localhost:8080/api/v1/lesson/generate',
+      'http://3.239.42.0:8080/api/v1/lesson/generate',
       data: {'prompt': prompt},
       options: Options(
         headers: {'Content-Type': 'application/json'},
@@ -1004,7 +1004,7 @@ Row(
 
               try {
                 final response = await dio.post(
-                  'http://localhost:8080/api/v1/scenario/save', // ✅ Change to your actual endpoint
+                  'http://3.239.42.0:8080/api/v1/scenario/save', // ✅ Change to your actual endpoint
                   data: blocks.map((block) => block.toJson()).toList(),
                   options: Options(
                     headers: {'Content-Type': 'application/json'},
@@ -1128,7 +1128,7 @@ Row(
                 try {
                   final dio = Dio();
                   final response = await dio.post(
-                    'http://localhost:8080/api/v1/scenario/generate',
+                    'http://3.239.42.0:8080/api/v1/scenario/generate',
                     data: {'prompt': prompt},
                     options: Options(
                       headers: {'Content-Type': 'application/json'},
