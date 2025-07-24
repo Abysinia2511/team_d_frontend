@@ -6,7 +6,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   static const _region = 'us-east-1';
-  static const _clientId = '5242496bve820t54u7o9h8oe93';
+  static const _clientId = 'a06q3f5i77ejv8mlo75mr2v6n';
   static final _baseUrl = "https://cognito-idp.${_region}.amazonaws.com";
 
   final Dio _dio = Dio(
